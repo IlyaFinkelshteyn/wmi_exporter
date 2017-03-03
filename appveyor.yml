@@ -25,7 +25,7 @@ build_script:
   - promu build -v .
   - ps: |
       $ErrorActionPreference = "Stop"
-      if($env:APPVEYOR_REPO_TAG -eq "True") {
+      if($true) {
         # The MSI version is not semver compliant, so just take the numerical parts
         $Version = $env:APPVEYOR_REPO_TAG_NAME -replace '^v?([0-9\.]+).*$','$1'
         Write-Verbose "Setting msi version to $Version"
@@ -33,20 +33,14 @@ build_script:
         Push-AppveyorArtifact installer\Output\wmi_exporter-$Version-$env:MSI_ARCH.msi -DeploymentName Installer
       }
 
-after_build:
-  - 7z a wmi_exporter-%MSI_ARCH%.zip wmi_exporter.exe
-
-artifacts:
-  - name: Executable
-    path: 'wmi_exporter-*.zip'
-
-deploy:
-  - provider: GitHub
-    description: WMI Exporter version $(appveyor_build_version)
-    artifact: Executable,Installer
-    auth_token:
-      secure: 'CrXWeTf7qONUOEki5olFfGEUPMLDeHj61koDXV3OVEaLgtACmnVHsKUub9POflda'
-    draft: false
-    prerelease: false
-    on:
-      appveyor_repo_tag: true
+on_finish:
+  - ps: |
+    $ErrorRecord=$Error[0]
+    $ErrorRecord | Format-List * -Force
+    $ErrorRecord.InvocationInfo |Format-List *
+    $Exception = $ErrorRecord.Exception
+    for ($i = 0; $Exception; $i++, ($Exception = $Exception.InnerException))
+    {   "$i" * 80
+        $Exception |Format-List * -Force
+    }
+    $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

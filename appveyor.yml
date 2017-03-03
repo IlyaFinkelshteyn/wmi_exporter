@@ -35,12 +35,12 @@ build_script:
 
 on_finish:
   - ps: |
-    $ErrorRecord=$Error[0]
-    $ErrorRecord | Format-List * -Force
-    $ErrorRecord.InvocationInfo |Format-List *
-    $Exception = $ErrorRecord.Exception
-    for ($i = 0; $Exception; $i++, ($Exception = $Exception.InnerException))
-    {   "$i" * 80
-        $Exception |Format-List * -Force
-    }
-    $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+      $ErrorRecord=$Error[0]
+      $ErrorRecord | Format-List * -Force
+      $ErrorRecord.InvocationInfo |Format-List *
+      $Exception = $ErrorRecord.Exception
+      for ($i = 0; $Exception; $i++, ($Exception = $Exception.InnerException))
+      {   "$i" * 80
+          $Exception |Format-List * -Force
+      }
+      $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
